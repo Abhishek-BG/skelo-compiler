@@ -10,11 +10,29 @@ const fs = require('fs/promises');
 const fss = require('fs');
 const body_parser = require('body-parser');
 const runtime = require('./runtime');
-
+const cors = require('cors');
 const logger = Logger.create('index');
 const app = express();
 expressWs(app);
-
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (
+        origin &&
+        /^http:\/\/([a-z0-9-]+\.)*localhost:(3000|8060)$/.test(origin)
+      ) {
+        // Allow any subdomain under localhost:3000 and localhost:8060
+        callback(null, true);
+      } else if (!origin) {
+        // Allow non-origin requests (like mobile apps or Postman)
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 (async () => {
     logger.info('Setting loglevel to', config.log_level);
     Logger.setLogLevel(config.log_level);
@@ -81,7 +99,7 @@ expressWs(app);
     const { version } = require('../package.json');
 
     app.get('/', (req, res, next) => {
-        return res.status(200).send({ message: `Piston v${version}` });
+        return res.status(200).send({ message: `Skelo Compiler  v${version}` });
     });
 
     app.use((req, res, next) => {

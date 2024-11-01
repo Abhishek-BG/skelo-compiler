@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+const cors = require('cors');
 const events = require('events');
 
 const runtime = require('../runtime');
@@ -118,6 +118,25 @@ function get_job(body) {
         );
     });
 }
+router.use(
+  cors({
+    origin: (origin, callback) => {
+      if (
+        origin &&
+        /^http:\/\/([a-z0-9-]+\.)*localhost:(3000|8060)$/.test(origin)
+      ) {
+        // Allow any subdomain under localhost:3000 and localhost:8060
+        callback(null, true);
+      } else if (!origin) {
+        // Allow non-origin requests (like mobile apps or Postman)
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 
 router.use((req, res, next) => {
     if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {

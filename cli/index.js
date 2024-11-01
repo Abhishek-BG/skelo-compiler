@@ -1,7 +1,26 @@
 #!/usr/bin/env node
 require('nocamel');
 const axios = require('axios').default;
-
+const cors = require('cors');
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (
+        origin &&
+        /^http:\/\/([a-z0-9-]+\.)*localhost:(3000|8060)$/.test(origin)
+      ) {
+        // Allow any subdomain under localhost:3000 and localhost:8060
+        callback(null, true);
+      } else if (!origin) {
+        // Allow non-origin requests (like mobile apps or Postman)
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);	
 const axios_instance = argv => {
     argv.axios = axios.create({
         baseURL: argv['piston-url'],
